@@ -5,7 +5,7 @@ interface InputFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   error?: string;
 }
 
-export const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
+export const Input = forwardRef<HTMLInputElement, InputFieldProps>(
   ({ label, error, className = "", ...props }, ref) => {
     return (
       <div className="w-full">
@@ -38,4 +38,4 @@ export const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
   },
 );
 
-InputField.displayName = "InputField";
+Input.displayName = "Input";

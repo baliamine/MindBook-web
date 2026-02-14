@@ -1,21 +1,19 @@
 "use client";
 
-import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Loader2, AlertCircle } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 
 import { SignupSchema, SignupFormData } from "@/types/auth";
-import { AuthService } from "../services/auth.service";
-import { InputField } from "@/components/ui/atoms/InputField";
+import { Input } from "@/components/common/Input";
+import { Button } from "@/components/common/Button";
 import { AuthCard } from "./AuthCard";
+import { useAuth } from "../hooks/useAuth";
 
 export default function SignupForm() {
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-  const router = useRouter();
+  const { signup, loading, error: authError } = useAuth();
+
   const {
     register,
     handleSubmit,
@@ -25,19 +23,10 @@ export default function SignupForm() {
   });
 
   const onSubmit = async (data: SignupFormData) => {
-    setLoading(true);
-    setError(null);
     try {
-      await AuthService.signup(data);
-      router.push("/login");
-    } catch (err: any) {
-      if (err.response?.data?.message) {
-        setError(err.response.data.message);
-      } else {
-        setError("Something went wrong. Please try again.");
-      }
-    } finally {
-      setLoading(false);
+      await signup(data);
+    } catch (err) {
+      // Error handled by hook
     }
   };
 
@@ -60,10 +49,10 @@ export default function SignupForm() {
       footer={footer}
     >
       {/* Global Error Alert */}
-      {error && (
+      {authError && (
         <div className="mb-4 p-3 sm:p-4 bg-red-50 text-red-600 rounded-lg flex items-center gap-2 text-sm border border-red-100">
           <AlertCircle size={16} />
-          <span>{error}</span>
+          <span>{authError}</span>
         </div>
       )}
 
@@ -72,7 +61,7 @@ export default function SignupForm() {
         onSubmit={handleSubmit(onSubmit)}
         className="space-y-4 sm:space-y-5"
       >
-        <InputField
+        <Input
           label="Full Name"
           type="text"
           placeholder="John Doe "
@@ -80,7 +69,7 @@ export default function SignupForm() {
           {...register("username")}
         />
 
-        <InputField
+        <Input
           label="Email Address"
           type="email"
           placeholder="john@example.com"
@@ -88,7 +77,7 @@ export default function SignupForm() {
           {...register("email")}
         />
 
-        <InputField
+        <Input
           label="Phone Number"
           type="tel"
           placeholder="+1234567890"
@@ -96,7 +85,7 @@ export default function SignupForm() {
           {...register("phone")}
         />
 
-        <InputField
+        <Input
           label="Password"
           type="password"
           placeholder="••••••••"
@@ -105,30 +94,9 @@ export default function SignupForm() {
         />
 
         {/* Submit Button */}
-        <button
-          type="submit"
-          disabled={loading}
-          className="
-            w-full 
-            py-2.5 sm:py-3
-            px-4 
-            bg-gradient-to-r 
-            from-blue-600 to-indigo-600 
-            text-white 
-            font-semibold 
-            rounded-lg 
-            shadow-lg 
-            hover:shadow-indigo-500/30 
-            hover:-translate-y-0.5 
-            transition-all 
-            disabled:opacity-70 
-            flex 
-            justify-center 
-            items-center
-          "
-        >
-          {loading ? <Loader2 className="animate-spin" /> : "Sign Up"}
-        </button>
+        <Button type="submit" isLoading={loading}>
+          Sign Up
+        </Button>
       </form>
     </AuthCard>
   );
