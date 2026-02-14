@@ -7,7 +7,7 @@ export const Navbar = () => {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link href="/" className="flex-shrink-0 flex items-center">
-              <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              <span className="text-2xl font-bold text-[#36656B]">
                 MindBook
               </span>
             </Link>
@@ -21,7 +21,7 @@ export const Navbar = () => {
             </Link>
             <Link
               href="/signup"
-              className="bg-indigo-600 text-white hover:bg-indigo-700 px-4 py-2 rounded-md text-sm font-medium"
+              className="bg-[#36656B] text-white hover:bg-[#2a4e53] px-4 py-2 rounded-md text-sm font-medium"
             >
               Sign Up
             </Link>

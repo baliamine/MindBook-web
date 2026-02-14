@@ -20,10 +20,10 @@ export const Input = forwardRef<HTMLInputElement, InputFieldProps>(
             py-2.5 sm:py-3 
             rounded-lg 
             border 
-            border-gray-200 
-            focus:border-indigo-500 
+            border-[#36656B]
+            focus:border-[#36656B] 
             focus:ring-4 
-            focus:ring-indigo-500/10 
+            focus:ring-[#36656B]/10 
             transition-all 
             outline-none 
             text-gray-700

@@ -21,13 +21,12 @@ export const Button = ({
         w-full 
         py-2.5 sm:py-3
         px-4 
-        bg-gradient-to-r 
-        from-blue-600 to-indigo-600 
+        bg-[#36656B]
         text-white 
         font-semibold 
         rounded-lg 
         shadow-lg 
-        hover:shadow-indigo-500/30 
+        hover:shadow-[#36656B]/30 
         hover:-translate-y-0.5 
         transition-all 
         disabled:opacity-70 

@@ -35,7 +35,7 @@ export default function LoginForm() {
       Don't have an account?{" "}
       <Link
         href="/signup"
-        className="text-indigo-600 font-medium hover:underline"
+        className="text-[#36656B] font-medium hover:underline"
       >
         Sign up
       </Link>
