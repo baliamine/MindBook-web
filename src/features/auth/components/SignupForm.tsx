@@ -1,32 +1,75 @@
 "use client";
 
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { AlertCircle } from "lucide-react";
-
-import { SignupSchema, SignupFormData } from "@/types/auth";
+import { useAuth } from "../hooks/useAuth";
 import { Input } from "@/components/common/Input";
 import { Button } from "@/components/common/Button";
 import { AuthCard } from "./AuthCard";
-import { useAuth } from "../hooks/useAuth";
 
 export default function SignupForm() {
-  const { signup, loading, error: authError } = useAuth();
+  const { signup, error: authError, loading } = useAuth();
+  const router = useRouter();
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<SignupFormData>({
-    resolver: zodResolver(SignupSchema),
-  });
+  // ✅ use username instead of name
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  const onSubmit = async (data: SignupFormData) => {
+  const [errors, setErrors] = useState<{
+    username?: string;
+    email?: string;
+    password?: string;
+  }>({});
+
+  // ✅ validation updated
+  const validateForm = () => {
+    const newErrors: {
+      username?: string;
+      email?: string;
+      password?: string;
+    } = {};
+
+    if (!username) {
+      newErrors.username = "Username is required";
+    } else if (username.length < 2) {
+      newErrors.username = "Username must be at least 2 characters";
+    }
+
+    if (!email) {
+      newErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      newErrors.email = "Invalid email address";
+    }
+
+    if (!password) {
+      newErrors.password = "Password is required";
+    } else if (password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!validateForm()) return;
+
     try {
-      await signup(data);
+      // ✅ backend expects username
+      await signup({
+        username,
+        email,
+        password,
+      });
+
+      router.push("/login");
     } catch (err) {
-      // Error handled by hook
+      // handled by useAuth hook
     }
   };
 
@@ -48,7 +91,7 @@ export default function SignupForm() {
       subtitle="Join MindBook today"
       footer={footer}
     >
-      {/* Global Error Alert */}
+      {/* Error Alert */}
       {authError && (
         <div className="mb-4 p-3 sm:p-4 bg-red-50 text-red-600 rounded-lg flex items-center gap-2 text-sm border border-red-100">
           <AlertCircle size={16} />
@@ -57,44 +100,40 @@ export default function SignupForm() {
       )}
 
       {/* Form */}
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="space-y-4 sm:space-y-5"
-      >
+      <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
+        {/* ✅ Username Input */}
         <Input
-          label="Full Name"
+          label="Username"
           type="text"
-          placeholder="John Doe "
-          error={errors.username?.message}
-          {...register("username")}
+          placeholder="amine123"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          error={errors.username}
+          disabled={loading}
         />
 
         <Input
           label="Email Address"
           type="email"
           placeholder="john@example.com"
-          error={errors.email?.message}
-          {...register("email")}
-        />
-
-        <Input
-          label="Phone Number"
-          type="tel"
-          placeholder="+1234567890"
-          error={errors.phone?.message}
-          {...register("phone")}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          error={errors.email}
+          disabled={loading}
         />
 
         <Input
           label="Password"
           type="password"
           placeholder="••••••••"
-          error={errors.password?.message}
-          {...register("password")}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          error={errors.password}
+          disabled={loading}
         />
 
         {/* Submit Button */}
-        <Button type="submit" isLoading={loading}>
+        <Button type="submit" isLoading={loading} disabled={loading}>
           Sign Up
         </Button>
       </form>

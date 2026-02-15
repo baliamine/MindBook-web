@@ -1,32 +1,53 @@
 "use client";
 
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { AlertCircle } from "lucide-react";
-
-import { LoginSchema, LoginFormData } from "@/types/auth";
+import { useAuth } from "../hooks/useAuth";
 import { Input } from "@/components/common/Input";
 import { Button } from "@/components/common/Button";
 import { AuthCard } from "./AuthCard";
-import { useAuth } from "../hooks/useAuth";
 
 export default function LoginForm() {
-  const { login, loading, error: authError } = useAuth();
+  const { login, error: authError, loading } = useAuth();
+  const router = useRouter();
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<LoginFormData>({
-    resolver: zodResolver(LoginSchema),
-  });
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState<{ email?: string; password?: string }>(
+    {},
+  );
 
-  const onSubmit = async (data: LoginFormData) => {
+  const validateForm = () => {
+    const newErrors: { email?: string; password?: string } = {};
+
+    if (!email) {
+      newErrors.email = "Email is required";
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      newErrors.email = "Invalid email address";
+    }
+
+    if (!password) {
+      newErrors.password = "Password is required";
+    } else if (password.length < 6) {
+      newErrors.password = "Password must be at least 6 characters";
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!validateForm()) return;
+
     try {
-      await login(data);
+      await login(email, password);
+      router.push("/");
     } catch (err) {
-      // Error handled by hook
+      // Error is handled by useAuth hook
     }
   };
 
@@ -45,10 +66,10 @@ export default function LoginForm() {
   return (
     <AuthCard
       title="Welcome Back"
-      subtitle="Sign in to your account"
+      subtitle="Login to your MindBook account"
       footer={footer}
     >
-      {/* Global Error Alert */}
+      {/* Error Alert */}
       {authError && (
         <div className="mb-4 p-3 sm:p-4 bg-red-50 text-red-600 rounded-lg flex items-center gap-2 text-sm border border-red-100">
           <AlertCircle size={16} />
@@ -57,29 +78,30 @@ export default function LoginForm() {
       )}
 
       {/* Form */}
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="space-y-4 sm:space-y-5"
-      >
+      <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
         <Input
           label="Email Address"
           type="email"
           placeholder="john@example.com"
-          error={errors.email?.message}
-          {...register("email")}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          error={errors.email}
+          disabled={loading}
         />
 
         <Input
           label="Password"
           type="password"
           placeholder="••••••••"
-          error={errors.password?.message}
-          {...register("password")}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          error={errors.password}
+          disabled={loading}
         />
 
         {/* Submit Button */}
-        <Button type="submit" isLoading={loading}>
-          Sign In
+        <Button type="submit" isLoading={loading} disabled={loading}>
+          Login
         </Button>
       </form>
     </AuthCard>
