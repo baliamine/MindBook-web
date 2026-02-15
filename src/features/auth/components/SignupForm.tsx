@@ -107,7 +107,12 @@ export default function SignupForm() {
           type="text"
           placeholder="amine123"
           value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          onChange={(e) => {
+            setUsername(e.target.value);
+            if (errors.username) {
+              setErrors({ ...errors, username: undefined });
+            }
+          }}
           error={errors.username}
           disabled={loading}
         />
@@ -117,7 +122,12 @@ export default function SignupForm() {
           type="email"
           placeholder="john@example.com"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(e) => {
+            setEmail(e.target.value);
+            if (errors.email) {
+              setErrors({ ...errors, email: undefined });
+            }
+          }}
           error={errors.email}
           disabled={loading}
         />
@@ -127,7 +137,12 @@ export default function SignupForm() {
           type="password"
           placeholder="••••••••"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(e) => {
+            setPassword(e.target.value);
+            if (errors.password) {
+              setErrors({ ...errors, password: undefined });
+            }
+          }}
           error={errors.password}
           disabled={loading}
         />

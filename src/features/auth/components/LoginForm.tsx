@@ -45,7 +45,7 @@ export default function LoginForm() {
 
     try {
       await login(email, password);
-      router.push("/");
+      router.push("/notes");
     } catch (err) {
       // Error is handled by useAuth hook
     }
@@ -84,7 +84,12 @@ export default function LoginForm() {
           type="email"
           placeholder="john@example.com"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(e) => {
+            setEmail(e.target.value);
+            if (errors.email) {
+              setErrors({ ...errors, email: undefined });
+            }
+          }}
           error={errors.email}
           disabled={loading}
         />
@@ -94,7 +99,12 @@ export default function LoginForm() {
           type="password"
           placeholder="••••••••"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(e) => {
+            setPassword(e.target.value);
+            if (errors.password) {
+              setErrors({ ...errors, password: undefined });
+            }
+          }}
           error={errors.password}
           disabled={loading}
         />

@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { loginUser, signupUser } from "../services/authService";
-import { saveToken } from "@/lib/authStorage";
-import { SignupFormData } from "@/types/auth";
+import { saveToken, saveUser, logout as clearAuth, getUser } from "@/lib/authStorage";
+import { SignupFormData, User } from "@/types/auth";
 
 export const useAuth = () => {
+  const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -11,11 +13,15 @@ export const useAuth = () => {
     setLoading(true);
     setError(null);
     try {
-      const data = await loginUser({ email, password });
-      if (data.token) {
-        saveToken(data.token);
+      const res = await loginUser({ email, password });
+
+      if (res.accessToken) {
+        saveToken(res.accessToken);
+        if (res.user) saveUser(res.user);
+        router.push("/notes"); // redirect after login
       }
-      return data;
+
+      return res;
     } catch (err) {
       const message = err instanceof Error ? err.message : "Login failed";
       setError(message);
@@ -29,16 +35,15 @@ export const useAuth = () => {
     setLoading(true);
     setError(null);
     try {
-      const result = await signupUser({
-        username: data.username,
-        email: data.email,
-        password: data.password,
-  
-      });
-      if (result.token) {
-        saveToken(result.token);
+      const res = await signupUser(data);
+
+      if (res.accessToken) {
+        saveToken(res.accessToken);
+        if (res.user) saveUser(res.user);
+        router.push("/notes"); // redirect after signup
       }
-      return result;
+
+      return res;
     } catch (err) {
       const message = err instanceof Error ? err.message : "Signup failed";
       setError(message);
@@ -48,5 +53,12 @@ export const useAuth = () => {
     }
   };
 
-  return { login, signup, error, loading };
+  const logout = () => {
+    clearAuth();
+    router.push("/login");
+  };
+
+  const getCurrentUser = (): User | null => getUser();
+
+  return { login, signup, logout, error, loading, getCurrentUser };
 };

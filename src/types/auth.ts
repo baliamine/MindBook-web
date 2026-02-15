@@ -14,3 +14,16 @@ export const SignupSchema = z.object({
 });
 
 export type SignupFormData = z.infer<typeof SignupSchema>;
+
+export interface User {
+  id: string;
+  username: string;
+  email: string;
+  role?: string;
+}
+
+export interface AuthResponse {
+  message: string;
+  accessToken: string;
+  user?: User;
+}
