@@ -20,7 +20,7 @@ export function AuthCard({ title, subtitle, children, footer }: AuthCardProps) {
         }}
       >
         {/* Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-black/30 to-transparent" />
+        <div className="absolute inset-0 bg-linear-to-br from-black/60 via-black/30 to-transparent" />
 
         {/* Branding Content */}
         <div className="relative z-10 px-12 text-center text-white max-w-lg">

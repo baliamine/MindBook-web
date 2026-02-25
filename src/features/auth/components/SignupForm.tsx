@@ -14,13 +14,12 @@ export default function SignupForm() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
 
   const [errors, setErrors] = useState<{
     username?: string;
     email?: string;
     password?: string;
-    confirmPassword?: string;
+
   }>({});
 
   const validateForm = () => {
@@ -28,7 +27,7 @@ export default function SignupForm() {
       username?: string;
       email?: string;
       password?: string;
-      confirmPassword?: string;
+   
     } = {};
 
     if (!username) {
@@ -47,12 +46,6 @@ export default function SignupForm() {
       newErrors.password = "Password is required";
     } else if (password.length < 6) {
       newErrors.password = "Password must be at least 6 characters";
-    }
-
-    if (!confirmPassword) {
-      newErrors.confirmPassword = "Please confirm your password";
-    } else if (confirmPassword !== password) {
-      newErrors.confirmPassword = "Passwords do not match";
     }
 
     setErrors(newErrors);
@@ -146,21 +139,6 @@ export default function SignupForm() {
             }
           }}
           error={errors.password}
-          disabled={loading}
-        />
-
-        <Input
-          label="Confirm Password"
-          type="password"
-          placeholder="••••••••"
-          value={confirmPassword}
-          onChange={(e) => {
-            setConfirmPassword(e.target.value);
-            if (errors.confirmPassword) {
-              setErrors({ ...errors, confirmPassword: undefined });
-            }
-          }}
-          error={errors.confirmPassword}
           disabled={loading}
         />
 
