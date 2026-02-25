@@ -1,17 +1,19 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { AlertCircle } from "lucide-react";
-import { useAuth } from "../hooks/useAuth";
+import { AlertCircle, CheckCircle } from "lucide-react";
+import { useLogin } from "../hooks/useAuth";
 import { Input } from "@/components/common/Input";
 import { Button } from "@/components/common/Button";
 import { AuthCard } from "./AuthCard";
 
 export default function LoginForm() {
-  const { login, error: authError, loading } = useAuth();
+  const { mutateAsync: login, isPending: loading, error } = useLogin();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const isRegistered = searchParams.get("registered") === "true";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -44,10 +46,10 @@ export default function LoginForm() {
     if (!validateForm()) return;
 
     try {
-      await login(email, password);
-      router.push("/notes");
+      await login({ email, password });
+      // Redirect is handled by the mutation
     } catch (err) {
-      // Error is handled by useAuth hook
+      // Error is handled by the mutation and displayed below
     }
   };
 
@@ -69,11 +71,19 @@ export default function LoginForm() {
       subtitle="Login to your MindBook account"
       footer={footer}
     >
+      {/* Success Alert - Show after registration */}
+      {isRegistered && (
+        <div className="mb-4 p-3 sm:p-4 bg-green-50 text-green-600 rounded-lg flex items-center gap-2 text-sm border border-green-100">
+          <CheckCircle size={16} />
+          <span>Registration successful! Please login with your credentials.</span>
+        </div>
+      )}
+
       {/* Error Alert */}
-      {authError && (
+      {error && (
         <div className="mb-4 p-3 sm:p-4 bg-red-50 text-red-600 rounded-lg flex items-center gap-2 text-sm border border-red-100">
           <AlertCircle size={16} />
-          <span>{authError}</span>
+          <span>{error.message || "Login failed"}</span>
         </div>
       )}
 
@@ -117,3 +127,4 @@ export default function LoginForm() {
     </AuthCard>
   );
 }
+

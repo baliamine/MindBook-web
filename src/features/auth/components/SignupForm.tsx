@@ -1,35 +1,34 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { AlertCircle } from "lucide-react";
-import { useAuth } from "../hooks/useAuth";
+import { useSignup } from "../hooks/useAuth";
 import { Input } from "@/components/common/Input";
 import { Button } from "@/components/common/Button";
 import { AuthCard } from "./AuthCard";
 
 export default function SignupForm() {
-  const { signup, error: authError, loading } = useAuth();
-  const router = useRouter();
+  const { mutateAsync: signup, isPending: loading, error } = useSignup();
 
-  // ✅ use username instead of name
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   const [errors, setErrors] = useState<{
     username?: string;
     email?: string;
     password?: string;
+    confirmPassword?: string;
   }>({});
 
-  // ✅ validation updated
   const validateForm = () => {
     const newErrors: {
       username?: string;
       email?: string;
       password?: string;
+      confirmPassword?: string;
     } = {};
 
     if (!username) {
@@ -50,6 +49,12 @@ export default function SignupForm() {
       newErrors.password = "Password must be at least 6 characters";
     }
 
+    if (!confirmPassword) {
+      newErrors.confirmPassword = "Please confirm your password";
+    } else if (confirmPassword !== password) {
+      newErrors.confirmPassword = "Passwords do not match";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -60,16 +65,14 @@ export default function SignupForm() {
     if (!validateForm()) return;
 
     try {
-      // ✅ backend expects username
       await signup({
         username,
         email,
         password,
       });
-
-      router.push("/login");
+      // Redirect to /login?registered=true is handled by the mutation
     } catch (err) {
-      // handled by useAuth hook
+      // Error is handled by the mutation and displayed below
     }
   };
 
@@ -92,16 +95,15 @@ export default function SignupForm() {
       footer={footer}
     >
       {/* Error Alert */}
-      {authError && (
+      {error && (
         <div className="mb-4 p-3 sm:p-4 bg-red-50 text-red-600 rounded-lg flex items-center gap-2 text-sm border border-red-100">
           <AlertCircle size={16} />
-          <span>{authError}</span>
+          <span>{error.message || "Signup failed"}</span>
         </div>
       )}
 
       {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
-        {/* ✅ Username Input */}
         <Input
           label="Username"
           type="text"
@@ -144,6 +146,21 @@ export default function SignupForm() {
             }
           }}
           error={errors.password}
+          disabled={loading}
+        />
+
+        <Input
+          label="Confirm Password"
+          type="password"
+          placeholder="••••••••"
+          value={confirmPassword}
+          onChange={(e) => {
+            setConfirmPassword(e.target.value);
+            if (errors.confirmPassword) {
+              setErrors({ ...errors, confirmPassword: undefined });
+            }
+          }}
+          error={errors.confirmPassword}
           disabled={loading}
         />
 
