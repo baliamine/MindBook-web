@@ -1,15 +1,16 @@
 import ProtectedRoute from "@/components/ProtectedRoute";
+import NotesList from "@/features/notes/components/NotesList";
 
 export default function NotesPage() {
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <div className="bg-white rounded-lg shadow p-6">
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">My Notes</h1>
-            <p className="text-gray-600 text-center py-12">
-              No notes found. Start creating your first note!
-            </p>
+      <div >
+        <div >
+          <div >
+            <h1 >
+              My Notes
+            </h1>
+            <NotesList />
           </div>
         </div>
       </div>
