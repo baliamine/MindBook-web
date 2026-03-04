@@ -9,105 +9,114 @@ import { Lock, Search } from "lucide-react";
 export default function NotesList() {
   const [searchInput, setSearchInput] = useState("");
 
-  // debounce to avoid instant refetch
-  const debouncedSearch = useDebounce(searchInput, 500);
+  const debouncedSearch = useDebounce(searchInput, 400);
 
-  const { data, isLoading, isError } = useNotes(1, 10, debouncedSearch);
+  const { data, isLoading, isError } = useNotes(1, 12, debouncedSearch);
 
   const notes: Note[] = data?.notes || [];
-console.log("Searching for:", debouncedSearch);
-console.log("Returned notes:", notes);
+
   return (
     <div className="space-y-10">
-
-      {/* ===== Search Section ===== */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        
-        <div className="relative w-full sm:max-w-md">
+      {/* ================= SEARCH BAR ================= */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+        {/* Search Input */}
+        <div className="relative w-full md:max-w-md">
           <Search
             size={18}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
           />
 
           <input
             type="text"
-            placeholder="Search by title, content or tag..."
+            placeholder="Search notes..."
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition"
+            className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-xl 
+  text-sm text-slate-900 placeholder:text-slate-400
+  focus:outline-none focus:ring-2 focus:ring-slate-300 focus:border-slate-300
+  transition-all shadow-sm"
           />
         </div>
 
-        <span className="text-sm text-gray-500">
-          {data?.meta.total ?? 0} notes
-        </span>
+        {/* Notes Count */}
+        <div className="text-sm text-slate-500 font-medium">
+          {data?.meta.total ?? 0} {data?.meta.total === 1 ? "note" : "notes"}
+        </div>
       </div>
 
-      {/* ===== Loading State ===== */}
+      {/* ================= LOADING ================= */}
       {isLoading && (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {[...Array(6)].map((_, i) => (
             <div
               key={i}
-              className="h-40 bg-gray-100 rounded-xl animate-pulse"
-            />
+              className="h-52 bg-white rounded-xl border border-slate-200 animate-pulse p-6 space-y-4"
+            >
+              <div className="h-5 bg-slate-200 rounded w-3/4"></div>
+              <div className="h-4 bg-slate-100 rounded w-full"></div>
+              <div className="h-4 bg-slate-100 rounded w-5/6"></div>
+            </div>
           ))}
         </div>
       )}
 
-      {/* ===== Error ===== */}
+      {/* ================= ERROR ================= */}
       {isError && (
-        <div className="text-center text-red-500">
-          Failed to load notes.
+        <div className="bg-white border border-red-200 rounded-xl p-8 text-center">
+          <h3 className="text-red-600 font-semibold">Failed to load notes</h3>
+          <p className="text-sm text-slate-500 mt-2">Please try again.</p>
         </div>
       )}
 
-      {/* ===== Empty State ===== */}
+      {/* ================= EMPTY ================= */}
       {!isLoading && notes.length === 0 && (
-        <div className="text-center py-20">
-          <h3 className="text-lg font-semibold text-gray-800">
+        <div className="bg-white border border-dashed border-slate-300 rounded-xl p-16 text-center">
+          <h3 className="text-lg font-semibold text-slate-800">
             No notes found
           </h3>
-          <p className="text-gray-500 mt-2">
+          <p className="text-slate-500 text-sm mt-2">
             Try adjusting your search or create a new note.
           </p>
         </div>
       )}
 
-      {/* ===== Notes Grid ===== */}
+      {/* ================= NOTES GRID ================= */}
       {!isLoading && notes.length > 0 && (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {notes.map((note) => (
             <div
               key={note._id}
-              className="group relative bg-white border border-gray-200 rounded-2xl p-6 hover:shadow-xl transition-all duration-300"
+              className="group bg-white rounded-xl border border-slate-200 p-6 
+              hover:shadow-lg hover:-translate-y-1 transition-all duration-300 
+              cursor-pointer flex flex-col min-h-[180px]"
             >
-              {/* Locked Overlay */}
-              {note.isLocked && (
-                <div className="absolute inset-0 bg-white/90 backdrop-blur-md flex flex-col items-center justify-center rounded-2xl opacity-0 group-hover:opacity-100 transition">
-                  <Lock size={28} className="text-gray-700 mb-2" />
-                  <p className="text-sm font-medium text-gray-700">
-                    Locked Note
-                  </p>
-                </div>
-              )}
+              {/* Title */}
+              <div className="flex items-start justify-between mb-3">
+                <h2 className="text-lg font-semibold text-slate-900 line-clamp-2">
+                  {note.title || "Untitled"}
+                </h2>
 
-              <h2 className="text-lg font-semibold text-gray-900 mb-3 line-clamp-1">
-                {note.title || "Untitled"}
-              </h2>
+                {note.isLocked && <Lock size={16} className="text-slate-400" />}
+              </div>
 
-              <p className="text-gray-600 text-sm leading-relaxed line-clamp-4">
-                {note.isLocked
-                  ? "This content is protected."
-                  : note.content}
+              {/* Content */}
+              <p className="text-sm text-slate-600 line-clamp-4 flex-1">
+                {note.isLocked ? (
+                  <span className="text-slate-400 italic">
+                    This note is protected.
+                  </span>
+                ) : (
+                  note.content
+                )}
               </p>
 
+              {/* Tags */}
               {note.tags && note.tags.length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-5">
-                  {note.tags.map((tag, index) => (
+                  {note.tags.slice(0, 3).map((tag, index) => (
                     <span
                       key={index}
-                      className="text-xs bg-gray-100 text-gray-700 px-3 py-1 rounded-full"
+                      className="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded-md"
                     >
                       #{tag}
                     </span>
